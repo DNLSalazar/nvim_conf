@@ -1,3 +1,8 @@
 return {
-  'prisma/vim-prisma'
+  {
+    'prisma/vim-prisma'
+  },
+  {
+    "pantharshit00/coc-prisma"
+  }
 }

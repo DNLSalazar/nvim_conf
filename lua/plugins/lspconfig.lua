@@ -14,6 +14,16 @@ return {
     'folke/neodev.nvim',
   },
   config = function()
+    lsp_config = require('lspconfig')
+    lsp_config['dartls'].setup({
+      settings = {
+        dart = {
+          analysisExcludeFolders = {
+            -- Here you can exclude folders for analyzing such as flutter library code
+          }
+        }
+      }
+    })
     local servers = {
       -- clangd = {},
       -- gopls = {},
@@ -31,53 +41,51 @@ return {
         },
       },
     }
-    local on_attach = function(_, bufnr)
-      -- NOTE: Remember that lua is a real programming language, and as such it is possible
-      -- to define small helper and utility functions so you don't have to repeat yourself
-      -- many times.
-      --
-      -- In this case, we create a function that lets us more easily define mappings specific
-      -- for LSP related items. It sets the mode, buffer and description for us each time.
-      local nmap = function(keys, func, desc)
-        if desc then
-          desc = 'LSP: ' .. desc
+    vim.api.nvim_create_autocmd("LspAttach", {
+      group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
+      callback = function(event)
+        -- NOTE: Remember that lua is a real programming language, and as such it is possible
+        -- to define small helper and utility functions so you don't have to repeat yourself
+        -- many times.
+        --
+        -- In this case, we create a function that lets us more easily define mappings specific
+        -- for LSP related items. It sets the mode, buffer and description for us each time.
+        local nmap = function(keys, func, desc)
+          vim.keymap.set('n', keys, func, { buffer = event.buf, desc = desc })
         end
 
-        vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
+        nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+        nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+
+        nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+        nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+        nmap('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+        nmap('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
+        nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+        nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+
+        -- See `:help K` for why this keymap
+        nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
+        nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
+
+        -- Lesser used LSP functionality
+        nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+        nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
+        nmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
+        nmap('<leader>wl', function()
+          print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+        end, '[W]orkspace [L]ist Folders')
+        nmap('<leader>i', vim.lsp.buf.completion, '[i]Suggest')
+        vim.keymap.set('i', '<C-k>', vim.lsp.buf.completion)
+
+        -- Create a command `:Format` local to the LSP buffer
+        vim.api.nvim_buf_create_user_command(event.buf, 'Format', function(_)
+          vim.lsp.buf.format()
+        end, { desc = 'Format current buffer with LSP' })
+
+        vim.keymap.set('n', '<C-f>', ':Format<CR>')
       end
-
-      nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-      nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
-
-      nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
-      nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-      nmap('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-      nmap('<leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-      nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-      nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
-
-      -- See `:help K` for why this keymap
-      nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-      nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
-
-      -- Lesser used LSP functionality
-      nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-      nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
-      nmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
-      nmap('<leader>wl', function()
-        print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-      end, '[W]orkspace [L]ist Folders')
-      nmap('<leader>i', vim.lsp.buf.completion, '[i]Suggest')
-      vim.keymap.set('i', '<C-k>', vim.lsp.buf.completion)
-
-      -- Create a command `:Format` local to the LSP buffer
-      vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
-        vim.lsp.buf.format()
-      end, { desc = 'Format current buffer with LSP' })
-
-      vim.keymap.set('n', '<C-f>', ':Format<CR>')
-    end
-
+    })
     -- mason-lspconfig requires that these setup functions are called in this order
     -- before setting up the servers.
     require('mason').setup()
@@ -99,64 +107,10 @@ return {
       function(server_name)
         require('lspconfig')[server_name].setup {
           capabilities = capabilities,
-          on_attach = on_attach,
           settings = servers[server_name],
           filetypes = (servers[server_name] or {}).filetypes,
         }
       end,
-    }
-
-    -- [[ Configure nvim-cmp ]]
-    -- See `:help cmp`
-    local cmp = require 'cmp'
-    local luasnip = require 'luasnip'
-    require('luasnip.loaders.from_vscode').lazy_load()
-    luasnip.config.setup {}
-
-    cmp.setup {
-      snippet = {
-        expand = function(args)
-          luasnip.lsp_expand(args.body)
-        end,
-      },
-      completion = {
-        completeopt = 'menu,menuone,noinsert',
-      },
-      mapping = cmp.mapping.preset.insert {
-        ['<C-n>'] = cmp.mapping.select_next_item(),
-        ['<C-p>'] = cmp.mapping.select_prev_item(),
-        ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-        ['<C-f>'] = cmp.mapping.scroll_docs(4),
-        ['<C-Space>'] = cmp.mapping.complete {},
-        ['<CR>'] = cmp.mapping.confirm {
-          behavior = cmp.ConfirmBehavior.Replace,
-          select = true,
-        },
-        ['<Tab>'] = cmp.mapping(function(fallback)
-          if cmp.visible() then
-            cmp.select_next_item()
-          elseif luasnip.expand_or_locally_jumpable() then
-            luasnip.expand_or_jump()
-          else
-            fallback()
-          end
-        end, { 'i', 's' }),
-        ['<S-Tab>'] = cmp.mapping(function(fallback)
-          if cmp.visible() then
-            cmp.select_prev_item()
-          elseif luasnip.locally_jumpable(-1) then
-            luasnip.jump(-1)
-          else
-            fallback()
-          end
-        end, { 'i', 's' }),
-      },
-      sources = {
-        { name = 'nvim_lsp' },
-        { name = 'luasnip' },
-        { name = 'path' },
-        { name = "codeium" }
-      },
     }
   end
 }
