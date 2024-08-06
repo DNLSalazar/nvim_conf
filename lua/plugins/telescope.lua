@@ -17,16 +17,22 @@ return {
     },
   },
   config = function()
+    local actions = require('telescope.actions')
     require('telescope').setup {
       defaults = {
         mappings = {
           i = {
             ['<C-u>'] = false,
             ['<C-d>'] = false,
+            ['<C-t>'] = actions.send_selected_to_qflist + actions.open_qflist,
           },
+          n = {
+            ['<C-t>'] = actions.send_selected_to_qflist + actions.open_qflist,
+          }
         },
       },
     }
+
     pcall(require('telescope').load_extension, 'fzf')
 
     -- Telescope live_grep in git root
@@ -46,7 +52,7 @@ return {
 
       -- Find the Git root directory from the current file's path
       local git_root = vim.fn.systemlist('git -C ' .. vim.fn.escape(current_dir, ' ') .. ' rev-parse --show-toplevel')
-      [1]
+          [1]
       if vim.v.shell_error ~= 0 then
         print 'Not a git repository. Searching on current working directory'
         return cwd
