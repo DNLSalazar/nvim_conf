@@ -14,7 +14,7 @@ return {
     'folke/neodev.nvim',
   },
   config = function()
-    lsp_config = require('lspconfig')
+    local lsp_config = require('lspconfig')
     lsp_config['dartls'].setup({
       settings = {
         dart = {
@@ -76,7 +76,7 @@ return {
           print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
         end, '[W]orkspace [L]ist Folders')
         nmap('<leader>i', vim.lsp.buf.completion, '[i]Suggest')
-        vim.keymap.set('i', '<C-k>', vim.lsp.buf.completion)
+        -- vim.keymap.set('i', '<C-k>', vim.lsp.buf.completion)
 
         -- Create a command `:Format` local to the LSP buffer
         vim.api.nvim_buf_create_user_command(event.buf, 'Format', function(_)

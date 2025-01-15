@@ -7,7 +7,8 @@ return {
         harpoon:setup({})
 
         vim.keymap.set("n", "<C-h>a", function() harpoon:list():add() end, { desc = "Harpoon append buffer" })
-        vim.keymap.set("n", "<C-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end, { desc = "Harpoon list" })
+        vim.keymap.set("n", "<C-h>e", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
+            { desc = "Harpoon list" })
         vim.keymap.set("n", "<C-h>d", function() harpoon:list():remove() end, { desc = "Harpoon delete buffer" })
 
         vim.keymap.set("n", "<C-h>h", function() harpoon:list():select(1) end, { desc = "Harpoon buffer 1" })

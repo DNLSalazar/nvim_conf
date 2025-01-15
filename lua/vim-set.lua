@@ -2,6 +2,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 vim.cmd("set expandtab");
+vim.cmd("set smarttab");
 vim.cmd("set tabstop=2");
 vim.cmd("set softtabstop=2");
 vim.cmd("set shiftwidth=2");
@@ -19,6 +20,16 @@ vim.o.wrap = false
 vim.wo.number = true
 vim.wo.relativenumber = true
 vim.o.scrolloff = 8
+
+-- Linebreak
+vim.o.linebreak = true
+vim.o.breakat = " "
+vim.o.wrap = false
+
+vim.keymap.set('n', '<leader>l', function()
+  vim.o.wrap = not vim.o.wrap
+end, { expr = true, silent = true, desc = "[L]ine Wrap" })
+
 -- Enable mouse mode
 vim.o.mouse = 'a'
 
@@ -94,3 +105,8 @@ vim.keymap.set('t', "<esc><esc>", "<c-\\><c-n>")
 
 -- Live edditing
 vim.opt.inccommand = "split"
+
+-- Scape to noh
+
+vim.keymap.set('n', '<leader>n', '<cmd>noh<CR>', { desc = 'Noh' })
+vim.keymap.set("n", "<leader>b", "<cmd>Oil<CR>", { desc = "Oil file explorer" })

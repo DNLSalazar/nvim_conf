@@ -25,7 +25,7 @@ return {
     name = "rose-pine",
     config = function()
       require("rose-pine").setup({
-        variant = "moon",  -- auto, main, moon, or dawn
+        variant = "moon",      -- auto, main, moon, or dawn
         dark_variant = "main", -- main, moon, or dawn
         dim_inactive_windows = false,
         extend_background_behind_borders = true,
@@ -33,7 +33,7 @@ return {
         enable = {
           terminal = true,
           legacy_highlights = true, -- Improve compatibility for previous versions of Neovim
-          migrations = true,      -- Handle deprecated options automatically
+          migrations = true,        -- Handle deprecated options automatically
         },
 
         styles = {
@@ -92,5 +92,32 @@ return {
       })
       -- vim.cmd("colorscheme rose-pine")
     end
-  }
+  },
+  {
+    {
+      'maxmx03/fluoromachine.nvim',
+      lazy = false,
+      priority = 1000,
+      config = function()
+        local fm = require 'fluoromachine'
+
+        fm.setup {
+          glow = true,
+          -- theme = 'fluoromachine',
+          -- theme = 'retrowave',
+          theme = 'delta',
+          transparent = true,
+        }
+
+        -- vim.cmd.colorscheme 'fluoromachine'
+      end
+    }
+  },
+  {
+    'b0o/lavi.nvim',
+    dependencies = { 'rktjmp/lush.nvim' },
+    config = function()
+      -- vim.cmd [[colorscheme lavi]]
+    end,
+  },
 }
