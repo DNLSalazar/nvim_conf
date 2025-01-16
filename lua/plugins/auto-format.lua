@@ -1,3 +1,3 @@
 return {
-  'kickstart.plugins.autoformat',
+  -- 'kickstart.plugins.autoformat',
 }
