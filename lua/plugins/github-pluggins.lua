@@ -4,11 +4,6 @@ return {
 
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
-
-  -- NOTE: This is where your plugins related to LSP can be installed.
-  --  The configuration is done below. Search for lspconfig to find it below.
-
-  -- Useful plugin to show you pending keybinds.
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -22,7 +17,7 @@ return {
         changedelete = { text = '~' },
       },
       on_attach = function(bufnr)
-        local gs = package.loaded.gitsigns
+        local gs = require('gitsigns')
 
         local function map(mode, l, r, opts)
           opts = opts or {}
@@ -31,25 +26,21 @@ return {
         end
 
         -- Navigation
-        map({ 'n', 'v' }, ']c', function()
+        map('n', ']c', function()
           if vim.wo.diff then
-            return ']c'
+            vim.cmd.normal({']c', bang = true})
+          else
+            gs.nav_hunk('next')
           end
-          vim.schedule(function()
-            gs.next_hunk()
-          end)
-          return '<Ignore>'
-        end, { expr = true, desc = 'Jump to next hunk' })
+        end)
 
-        map({ 'n', 'v' }, '[c', function()
+        map('n', '[c', function()
           if vim.wo.diff then
-            return '[c'
+            vim.cmd.normal({'[c', bang = true})
+          else
+            gs.nav_hunk('prev')
           end
-          vim.schedule(function()
-            gs.prev_hunk()
-          end)
-          return '<Ignore>'
-        end, { expr = true, desc = 'Jump to previous hunk' })
+        end)
 
         -- Actions
         -- visual mode

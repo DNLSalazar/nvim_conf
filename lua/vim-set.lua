@@ -7,6 +7,15 @@ vim.cmd("set tabstop=2");
 vim.cmd("set softtabstop=2");
 vim.cmd("set shiftwidth=2");
 
+
+vim.keymap.set('n', '<leader>tt', function()
+  vim.cmd("set expandtab");
+  vim.cmd("set smarttab");
+  vim.cmd("set tabstop=2");
+  vim.cmd("set softtabstop=2");
+  vim.cmd("set shiftwidth=2");
+end, { expr = true, silent = false, desc = "[T]ab reset" })
+
 -- Setting options
 -- See `:help vim.o`
 -- NOTE: You can change these options as you wish!
