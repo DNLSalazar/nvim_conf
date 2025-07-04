@@ -1,3 +1,0 @@
-return {
-  -- 'kickstart.plugins.autoformat',
-}
