@@ -23,9 +23,11 @@ return {
       { 'j-hui/fidget.nvim', opts = {} },
     },
     config = function()
-      local lspConf = require("lspconfig")
+      local lspConf = vim.lsp
       local capabilities = require("blink.cmp").get_lsp_capabilities();
-      lspConf.lua_ls.setup({ capabilities = capabilities })
+      lspConf.config('lua_ls', {
+        capabilities = capabilities
+      })
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
         callback = function(event)
@@ -93,6 +95,19 @@ return {
           end,
         },
       }
+      -- GDscript config
+      local gdscriptPort = os.getenv 'GDScript_Port' or '6005'
+      local cmd = vim.lsp.rpc.connect('127.0.0.1', tonumber(gdscriptPort))
+
+      lspConf.config('gdscript', {
+        cmd = cmd,
+        filetypes = { 'gd', 'gdscript', 'gdscript3', 'gdscript4' },
+        root_markers = { 'project.godot', '.git' },
+        capabilities = capabilities
+      })
+
+      lspConf.enable('gdscript')
+
       local servers = {
         gopls = {},
         ts_ls = {},
@@ -123,7 +138,8 @@ return {
           function(server_name)
             local server = servers[server_name] or {}
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            lspConf[server_name].setup(server)
+            lspConf.config(server_name, server)
+            lspConf.enable(server_name)
           end,
         },
       }
