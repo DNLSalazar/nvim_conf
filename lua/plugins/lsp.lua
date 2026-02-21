@@ -108,6 +108,29 @@ return {
 
       lspConf.enable('gdscript')
 
+      -- Dart / Flutter
+      lspConf.config("dartls", {
+        cmd = { "dart", "language-server", "--protocol=lsp" },
+        filetypes = { "dart" },
+        init_options = {
+          closinglabels = true,
+          flutteroutline = true,
+          onlyanalyzeprojectswithopenfiles = true,
+          outline = true,
+          suggestfromunimportedlibraries = true,
+        },
+        -- root_dir = root_pattern("pubspec.yaml"),
+        settings = {
+          dart = {
+            completefunctioncalls = true,
+            showtodos = true,
+          },
+        },
+        capabilities = capabilities
+      })
+
+      lspConf.enable("dartls")
+
       local servers = {
         gopls = {},
         ts_ls = {},
